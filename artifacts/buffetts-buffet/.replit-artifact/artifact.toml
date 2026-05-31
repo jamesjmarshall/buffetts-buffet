@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Buffett's Buffet"
+version = "1.0.0"
+id = "artifacts/buffetts-buffet"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19654
+
+[services.development]
+run = "pnpm --filter @workspace/buffetts-buffet run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/buffetts-buffet", "run", "build" ]
+publicDir = "artifacts/buffetts-buffet/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19654"
+BASE_PATH = "/"

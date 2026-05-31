@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Buffett's Buffet API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: stocks
+    description: Stock screening operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,61 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /stocks/{ticker}:
+    get:
+      operationId: getStock
+      tags: [stocks]
+      summary: Get Buffett score for a stock
+      description: Fetches live financial data and scores the stock against Buffett's 8 core metrics
+      parameters:
+        - name: ticker
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stock data and Buffett score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockResult"
+        "404":
+          description: Ticker not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "400":
+          description: Invalid ticker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /stocks/{ticker}/similar:
+    get:
+      operationId: getSimilarStocks
+      tags: [stocks]
+      summary: Get similar high-scoring stocks
+      description: Returns a curated list of well-known stocks with strong Buffett scores for comparison
+      parameters:
+        - name: ticker
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of similar stocks with their scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +91,101 @@ components:
       required:
         - status
 
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MetricScore:
+      type: object
+      required:
+        - key
+        - name
+        - value
+        - percentile
+        - color
+        - explanation
+        - buffettWhy
+      properties:
+        key:
+          type: string
+          description: Machine-readable metric key
+        name:
+          type: string
+          description: Human-readable metric name
+        value:
+          type: ["number", "null"]
+          description: Raw calculated value
+        formattedValue:
+          type: ["string", "null"]
+          description: Display-formatted value (e.g. "12.4%", "5.2x")
+        percentile:
+          type: ["number", "null"]
+          description: Percentile rank vs S&P500 dataset (0-100)
+        color:
+          type: string
+          enum: [green, amber, red, gray]
+          description: Traffic light indicator
+        explanation:
+          type: ["string", "null"]
+          description: One-line explanation of why Buffett cares about this metric
+        buffettWhy:
+          type: string
+          description: Why Buffett weights this metric
+
+    StockResult:
+      type: object
+      required:
+        - ticker
+        - companyName
+        - buffettScore
+        - scoreColor
+        - metrics
+        - filingDate
+        - disclaimer
+      properties:
+        ticker:
+          type: string
+        companyName:
+          type: ["string", "null"]
+        sector:
+          type: ["string", "null"]
+        filingDate:
+          type: ["string", "null"]
+        buffettScore:
+          type: number
+          description: Weighted Buffett score 0-100
+        scoreColor:
+          type: string
+          enum: [green, amber, red]
+          description: green=70+, amber=40-69, red=<40
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricScore"
+        disclaimer:
+          type: string
+
+    StockSummary:
+      type: object
+      required:
+        - ticker
+        - companyName
+        - buffettScore
+        - scoreColor
+        - sector
+      properties:
+        ticker:
+          type: string
+        companyName:
+          type: ["string", "null"]
+        sector:
+          type: ["string", "null"]
+        buffettScore:
+          type: number
+        scoreColor:
+          type: string
+          enum: [green, amber, red]
