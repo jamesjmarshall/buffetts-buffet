@@ -69,10 +69,7 @@ export function Home() {
           </h1>
 
           <p className="text-base sm:text-lg text-foreground/70 max-w-xl mx-auto leading-relaxed">
-            Warren Buffett has beaten the market for 60 years. We tested his 8 core metrics
-            on nearly 2,000 S&P500 companies to find which ones actually predicted outperformance.
-            <br /><br />
-            Now you can run any stock through the same lens.
+            We tested Buffett's 8 core metrics on nearly 2,000 S&P500 companies to find which ones actually predicted outperformance. Enter a ticker to see how it scores.
           </p>
         </div>
 
@@ -118,25 +115,13 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── Stats bar ────────────────────────────────────────────────────────── */}
-      <section className="border-y border-border/40 bg-primary/5">
-        <div className="max-w-5xl mx-auto px-6 py-8 grid grid-cols-3 divide-x divide-border/30">
-          {STATS.map((s) => (
-            <div key={s.label} className="flex flex-col items-center text-center px-4">
-              <span className="font-serif text-4xl sm:text-5xl font-bold text-accent">{s.value}</span>
-              <span className="text-xs sm:text-sm text-muted-foreground mt-1 leading-tight">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ── Pillars ──────────────────────────────────────────────────────────── */}
       <section className="py-20 px-6 max-w-5xl mx-auto w-full">
         <div className="text-center mb-12 space-y-3">
           <OrnamentalDivider />
           <h2 className="font-serif text-4xl font-bold text-primary mt-4">The 8 Pillars</h2>
           <p className="text-muted-foreground text-base max-w-lg mx-auto">
-            Each stock is scored against these metrics — weighted by their actual predictive power from a Random Forest model trained on S&P500 data.
+            Weighted by their actual predictive power from a Random Forest model trained on S&P500 data.
           </p>
         </div>
 
@@ -153,20 +138,6 @@ export function Home() {
               <p className="text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ── Quote ────────────────────────────────────────────────────────────── */}
-      <section className="py-16 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <svg aria-hidden="true" className="w-12 h-12 mx-auto text-accent opacity-60" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-          </svg>
-          <p className="font-serif text-2xl sm:text-3xl italic font-medium leading-relaxed text-primary-foreground/90">
-            "It's far better to buy a wonderful company at a fair price than a fair company at a wonderful price."
-          </p>
-          <p className="text-accent font-semibold tracking-wide text-sm uppercase">— Warren Buffett</p>
-          <OrnamentalDivider light />
         </div>
       </section>
 
