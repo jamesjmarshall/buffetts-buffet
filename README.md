@@ -1,6 +1,6 @@
 # Buffett's Buffet
 
-A stock screener that scores any ticker against Warren Buffett's 8 core fundamental metrics. Enter a symbol — get a Buffett Score (0–100), a radar chart, and a metric breakdown with percentile rankings against ~1,960 S&P 500 companies.
+A stock screener that scores any ticker against Warren Buffett's 8 core fundamental metrics. Enter a symbol - get a Buffett Score (0–100), a radar chart, and a metric breakdown with percentile rankings against ~1,960 S&P 500 companies.
 
 ---
 
