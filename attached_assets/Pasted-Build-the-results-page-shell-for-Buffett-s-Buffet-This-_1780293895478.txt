@@ -1,0 +1,44 @@
+Build the results page shell for Buffett's Buffet. This is a static UI with hardcoded dummy data — no backend calls, no API integration yet. The goal is a pixel-perfect template I can later connect to live data.
+Page: /stock/AAPL (hardcoded for now)
+Layout and design:
+
+Warm diner aesthetic: deep burgundy (#5C1A1A), cream (#FDF6EC), gold accents (#C9A84C)
+Font: Playfair Display for headings, clean sans-serif for body
+Mobile responsive
+Navigation bar: "Buffett's Buffet" logo left, "Research" link right
+
+Top section:
+
+Company name: "Apple Inc."
+Ticker badge: "AAPL"
+Filing date line: "As of Sep 2025"
+Small disclaimer: "This score reflects historical patterns from 2020–2024 data. Not financial advice."
+
+Score circle (centre of page):
+
+Large circular element, number "74" inside, "/100" below it
+Background colour of circle: green (#2D6A4F) for 70+, amber (#E9C46A) for 40–69, red (#C1121F) for below 40
+One line of summary text below the circle: "Strong earnings quality. High leverage is a concern."
+
+Radar chart:
+
+Use Chart.js
+Octagon shape, 8 axes
+Labels: Earnings Consistency, FCF Margin, Interest Coverage, Net Profit Margin, Return on Capital, Current Ratio, Return on Equity, Debt/Equity
+Hardcoded dummy percentile values: [82, 91, 88, 89, 76, 23, 95, 18]
+Fill colour: burgundy at 30% opacity, solid burgundy border
+
+Metric breakdown table:
+
+8 rows, clean styling
+Columns: Metric | Value | Percentile | Signal
+Hardcoded dummy data:
+
+MetricValuePercentileSignalEarnings Consistency0.1882nd🟢FCF Margin26%91st🟢Interest Coverage31x88th🟢Net Profit Margin24%89th🟢Return on Capital19%76th🟢Current Ratio0.8723rd🔴Return on Equity147%95th🟢Debt / Equity186%18th🔴
+Signal dot: green circle for percentile ≥ 50, red circle for percentile < 50.
+Footer:
+
+"Built on data. Inspired by the Oracle of Omaha." left
+GitHub link right
+
+Important: All data is hardcoded dummy values. Structure the React component so every piece of data comes from a single stockData object at the top of the file — so I can later replace that object with a real API call and nothing else needs to change.
