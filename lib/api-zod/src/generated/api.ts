@@ -32,6 +32,7 @@ export const GetStockResponse = zod.object({
   "filingDate": zod.string().nullable(),
   "buffettScore": zod.number().describe('Weighted Buffett score 0-100'),
   "scoreColor": zod.enum(['green', 'amber', 'red']).describe('green=70+, amber=40-69, red=<40'),
+  "scoreConfidence": zod.number().describe('Percentage of applicable metric weight covered by actual data (0-100)'),
   "metrics": zod.array(zod.object({
   "key": zod.string().describe('Machine-readable metric key'),
   "name": zod.string().describe('Human-readable metric name'),
@@ -40,9 +41,16 @@ export const GetStockResponse = zod.object({
   "percentile": zod.number().nullable().describe('Percentile rank vs S&P500 dataset (0-100)'),
   "color": zod.enum(['green', 'amber', 'red', 'gray']).describe('Traffic light indicator'),
   "explanation": zod.string().nullable().describe('One-line explanation of why Buffett cares about this metric'),
-  "buffettWhy": zod.string().describe('Why Buffett weights this metric')
+  "buffettWhy": zod.string().describe('Why Buffett weights this metric'),
+  "notApplicable": zod.boolean().describe('True when this metric is excluded for sector reasons')
 })),
-  "disclaimer": zod.string()
+  "disclaimer": zod.string(),
+  "similarStocks": zod.array(zod.object({
+  "ticker": zod.string(),
+  "name": zod.string(),
+  "score": zod.number().describe('Pre-calculated Buffett score (0-100)'),
+  "sector": zod.string()
+})).describe('4 stocks from the scored universe whose Buffett scores are closest to this one')
 })
 
 

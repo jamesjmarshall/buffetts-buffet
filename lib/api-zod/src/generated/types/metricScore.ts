@@ -36,4 +36,6 @@ export interface MetricScore {
   explanation: string | null;
   /** Why Buffett weights this metric */
   buffettWhy: string;
+  /** True when this metric is excluded for sector reasons */
+  notApplicable: boolean;
 }

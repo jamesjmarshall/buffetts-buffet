@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
-import { Search } from "lucide-react";
+import { useLocation, Link } from "wouter";
+import { Search, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -15,12 +15,6 @@ const PILLARS = [
   { icon: "⚖️", key: "Current Ratio", desc: "Short-term financial health", weight: "11%" },
   { icon: "🔑", key: "Return on Equity", desc: "Returns to shareholders", weight: "11%" },
   { icon: "📉", key: "Debt / Equity", desc: "Financial leverage (lower = better)", weight: "10%" },
-];
-
-const STATS = [
-  { value: "60", label: "Years Buffett has beaten the market" },
-  { value: "8", label: "Core metrics from his playbook" },
-  { value: "~2,000", label: "S&P500 companies analyzed" },
 ];
 
 export function Home() {
@@ -57,19 +51,23 @@ export function Home() {
         <div className="mb-6 flex flex-col items-center gap-2">
           <OrnamentalDivider />
           <span className="text-xs font-bold uppercase tracking-[0.35em] text-accent opacity-80">
-            A Buffett Scorecard
+            A stock screener
           </span>
           <OrnamentalDivider />
         </div>
 
         {/* Title */}
-        <div className="relative max-w-3xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="relative max-w-3xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <h1 className="font-serif text-6xl sm:text-8xl font-bold tracking-tight text-primary leading-none">
             Buffett's<br />Buffet
           </h1>
 
-          <p className="text-base sm:text-lg text-foreground/70 max-w-xl mx-auto leading-relaxed">
-            We tested Buffett's 8 core metrics on nearly 2,000 S&P500 companies to find which ones actually predicted outperformance. Enter a ticker to see how it scores.
+          <p className="font-serif text-xl sm:text-2xl font-semibold text-primary/80 max-w-xl mx-auto leading-snug pt-2">
+            Does Warren Buffett's investing methodology actually predict outperformance?
+          </p>
+
+          <p className="text-base text-foreground/60 max-w-xl mx-auto leading-relaxed">
+            We tested 8 value investing metrics on 1,960 S&P500 companies using a Random Forest model, then built a screener from the results.
           </p>
         </div>
 
@@ -113,15 +111,26 @@ export function Home() {
             <div className="h-1.5 w-full bg-gradient-to-r from-accent/40 via-accent to-accent/40" />
           </div>
         </div>
+
+        {/* Methodology CTA */}
+        <div className="mt-5 animate-in fade-in duration-700 delay-300">
+          <Link
+            href="/research"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition-colors group"
+          >
+            How did we build this?
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
       </section>
 
       {/* ── Pillars ──────────────────────────────────────────────────────────── */}
       <section className="py-20 px-6 max-w-5xl mx-auto w-full">
         <div className="text-center mb-12 space-y-3">
           <OrnamentalDivider />
-          <h2 className="font-serif text-4xl font-bold text-primary mt-4">The 8 Pillars</h2>
+          <h2 className="font-serif text-4xl font-bold text-primary mt-4">The 8 metrics we tested</h2>
           <p className="text-muted-foreground text-base max-w-lg mx-auto">
-            Weighted by their actual predictive power from a Random Forest model trained on S&P500 data.
+            The weightings come from a Random Forest model trained on ~1,960 S&P500 companies.
           </p>
         </div>
 
@@ -148,12 +157,14 @@ export function Home() {
 function OrnamentalDivider({ light = false }: { light?: boolean }) {
   const color = light ? "hsl(44 54% 54% / 0.6)" : "hsl(44 54% 54% / 0.7)";
   return (
-    <svg width="180" height="12" viewBox="0 0 180 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <line x1="0" y1="6" x2="72" y2="6" stroke={color} strokeWidth="1" />
-      <circle cx="80" cy="6" r="2" fill={color} />
-      <circle cx="90" cy="6" r="3.5" fill={color} />
-      <circle cx="100" cy="6" r="2" fill={color} />
-      <line x1="108" y1="6" x2="180" y2="6" stroke={color} strokeWidth="1" />
-    </svg>
+    <div className="flex justify-center w-full">
+      <svg width="180" height="12" viewBox="0 0 180 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="0" y1="6" x2="72" y2="6" stroke={color} strokeWidth="1" />
+        <circle cx="80" cy="6" r="2" fill={color} />
+        <circle cx="90" cy="6" r="3.5" fill={color} />
+        <circle cx="100" cy="6" r="2" fill={color} />
+        <line x1="108" y1="6" x2="180" y2="6" stroke={color} strokeWidth="1" />
+      </svg>
+    </div>
   );
 }

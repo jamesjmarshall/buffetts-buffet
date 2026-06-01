@@ -44,6 +44,9 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
+# Local environment variables — do not commit
+.env
+
+# Replit (legacy — dirs deleted during local migration)
 .cache/
 .local/

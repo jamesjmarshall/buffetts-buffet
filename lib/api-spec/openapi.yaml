@@ -109,6 +109,7 @@ components:
         - color
         - explanation
         - buffettWhy
+        - notApplicable
       properties:
         key:
           type: string
@@ -135,6 +136,27 @@ components:
         buffettWhy:
           type: string
           description: Why Buffett weights this metric
+        notApplicable:
+          type: boolean
+          description: True when this metric is excluded for sector reasons
+
+    SimilarStock:
+      type: object
+      required:
+        - ticker
+        - name
+        - score
+        - sector
+      properties:
+        ticker:
+          type: string
+        name:
+          type: string
+        score:
+          type: integer
+          description: Pre-calculated Buffett score (0-100)
+        sector:
+          type: string
 
     StockResult:
       type: object
@@ -143,9 +165,11 @@ components:
         - companyName
         - buffettScore
         - scoreColor
+        - scoreConfidence
         - metrics
         - filingDate
         - disclaimer
+        - similarStocks
       properties:
         ticker:
           type: string
@@ -162,12 +186,20 @@ components:
           type: string
           enum: [green, amber, red]
           description: green=70+, amber=40-69, red=<40
+        scoreConfidence:
+          type: integer
+          description: Percentage of applicable metric weight covered by actual data (0-100)
         metrics:
           type: array
           items:
             $ref: "#/components/schemas/MetricScore"
         disclaimer:
           type: string
+        similarStocks:
+          type: array
+          description: 4 stocks from the scored universe whose Buffett scores are closest to this one
+          items:
+            $ref: "#/components/schemas/SimilarStock"
 
     StockSummary:
       type: object

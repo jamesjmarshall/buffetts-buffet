@@ -55,6 +55,16 @@ export interface MetricScore {
   explanation: string | null;
   /** Why Buffett weights this metric */
   buffettWhy: string;
+  /** True when this metric is excluded for sector reasons */
+  notApplicable: boolean;
+}
+
+export interface SimilarStock {
+  ticker: string;
+  name: string;
+  /** Pre-calculated Buffett score (0-100) */
+  score: number;
+  sector: string;
 }
 
 /**
@@ -81,8 +91,12 @@ export interface StockResult {
   buffettScore: number;
   /** green=70+, amber=40-69, red=<40 */
   scoreColor: StockResultScoreColor;
+  /** Percentage of applicable metric weight covered by actual data (0-100) */
+  scoreConfidence: number;
   metrics: MetricScore[];
   disclaimer: string;
+  /** 4 stocks from the scored universe whose Buffett scores are closest to this one */
+  similarStocks: SimilarStock[];
 }
 
 export type StockSummaryScoreColor = typeof StockSummaryScoreColor[keyof typeof StockSummaryScoreColor];

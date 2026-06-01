@@ -7,6 +7,7 @@ import {
   GetSimilarStocksParams,
   GetSimilarStocksResponse,
 } from "@workspace/api-zod";
+import { findSimilarStocks } from "../similarStocks";
 
 const router: IRouter = Router();
 
@@ -95,7 +96,6 @@ const METRIC_META: Record<
 };
 
 // Curated list of well-known high-quality Buffett-style stocks for comparison
-const SIMILAR_TICKERS = ["AAPL", "KO", "JNJ", "PG", "MCO", "V", "MSFT", "AXP", "WMT", "BRK-B"];
 
 function calcPercentile(value: number, metric: string): number | null {
   const p = PERCENTILES[metric];
@@ -148,6 +148,84 @@ function formatValue(key: string, value: number | null): string | null {
   }
 }
 
+// ── Layer 2: Sector-aware metric exclusions ───────────────────────────────────
+// Some metrics are structurally meaningless for certain sectors.
+const SECTOR_EXCLUSIONS: Record<string, string[]> = {
+  "Financial Services": ["current_ratio", "de"],
+  "Real Estate": ["fcf_margin"],
+};
+
+function isMetricApplicable(metricKey: string, sector: string | null): boolean {
+  if (!sector) return true;
+  return !SECTOR_EXCLUSIONS[sector]?.includes(metricKey);
+}
+
+// ── fundamentalsTimeSeries extraction helpers ─────────────────────────────────
+// yahoo-finance2 can return data in two formats depending on version/ticker:
+//   Format A (native): array of { date: Date, annualNetIncome: number, ... }
+//   Format B (raw):    object of { annualNetIncome: [{ asOfDate, reportedValue: { raw } }] }
+// Both are handled below.
+
+function extractTsValues(timeSeries: any, field: string): number[] {
+  if (!timeSeries) return [];
+
+  // Format A: array of dated objects
+  if (Array.isArray(timeSeries)) {
+    return timeSeries
+      .sort((a: any, b: any) =>
+        new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime()
+      )
+      .map((e: any) => e?.[field])
+      .filter((v): v is number => typeof v === "number" && isFinite(v));
+  }
+
+  // Format B: object with per-field arrays
+  const arr = timeSeries?.[field];
+  if (Array.isArray(arr)) {
+    return [...arr]
+      .sort((a: any, b: any) =>
+        new Date(b.asOfDate ?? 0).getTime() - new Date(a.asOfDate ?? 0).getTime()
+      )
+      .map((e: any) => {
+        const v = e?.reportedValue?.raw ?? e?.value ?? e?.[field];
+        return typeof v === "number" && isFinite(v) ? v : null;
+      })
+      .filter((v): v is number => v !== null);
+  }
+
+  return [];
+}
+
+function tsLatestFrom(timeSeries: any, field: string): number | null {
+  const values = extractTsValues(timeSeries, field);
+  return values.length > 0 ? values[0]! : null;
+}
+
+function tsDateFrom(timeSeries: any, field: string): Date | null {
+  if (!timeSeries) return null;
+
+  if (Array.isArray(timeSeries)) {
+    const sorted = [...timeSeries].sort((a: any, b: any) =>
+      new Date(b.date ?? 0).getTime() - new Date(a.date ?? 0).getTime()
+    );
+    const entry = sorted.find((e: any) => {
+      const v = e?.[field];
+      return typeof v === "number" && isFinite(v);
+    });
+    return entry?.date ? new Date(entry.date) : null;
+  }
+
+  const arr = timeSeries?.[field];
+  if (Array.isArray(arr) && arr.length > 0) {
+    const sorted = [...arr].sort((a: any, b: any) =>
+      new Date(b.asOfDate ?? 0).getTime() - new Date(a.asOfDate ?? 0).getTime()
+    );
+    return sorted[0]?.asOfDate ? new Date(sorted[0].asOfDate) : null;
+  }
+
+  return null;
+}
+
 async function calcBuffettScore(ticker: string): Promise<{
   ticker: string;
   companyName: string | null;
@@ -155,6 +233,7 @@ async function calcBuffettScore(ticker: string): Promise<{
   filingDate: string | null;
   buffettScore: number;
   scoreColor: "green" | "amber" | "red";
+  scoreConfidence: number;
   metrics: {
     key: string;
     name: string;
@@ -164,18 +243,28 @@ async function calcBuffettScore(ticker: string): Promise<{
     color: "green" | "amber" | "red" | "gray";
     explanation: string | null;
     buffettWhy: string;
+    notApplicable: boolean;
   }[];
   disclaimer: string;
 }> {
-  const [info, financials, balanceSheet] = await Promise.all([
+  const today = new Date().toISOString().split("T")[0]!;
+
+  // Fetch financialData and time series in parallel.
+  // Make separate fundamentalsTimeSeries calls for income vs balance sheet
+  // to maximise per-ticker data availability.
+  const [info, tsIncome, tsBalance] = await Promise.all([
     yahooFinance.quoteSummary(ticker, {
       modules: ["summaryDetail", "defaultKeyStatistics", "financialData", "assetProfile"],
     }).catch(() => null),
-    yahooFinance.quoteSummary(ticker, {
-      modules: ["incomeStatementHistory"],
+    yahooFinance.fundamentalsTimeSeries(ticker, {
+      period1: "2019-01-01",
+      period2: today,
+      module: "annualNetIncome,annualOperatingIncome,annualInterestExpense" as any,
     }).catch(() => null),
-    yahooFinance.quoteSummary(ticker, {
-      modules: ["balanceSheetHistory"],
+    yahooFinance.fundamentalsTimeSeries(ticker, {
+      period1: "2019-01-01",
+      period2: today,
+      module: "annualStockholdersEquity,annualLongTermDebt" as any,
     }).catch(() => null),
   ]);
 
@@ -184,22 +273,21 @@ async function calcBuffettScore(ticker: string): Promise<{
   }
 
   const fd = (info as any).financialData ?? {};
-  const ds = (info as any).summaryDetail ?? {};
-  const ks = (info as any).defaultKeyStatistics ?? {};
   const ap = (info as any).assetProfile ?? {};
+  const sector: string | null = ap.sector ?? null;
 
-  // ── Metric calculations ─────────────────────────────────────────────────────
+  // ── Layer 1: Metric calculations with fallback chains ────────────────────────
 
-  // ROE
+  // ROE: financialData → null
   const roe: number | null = fd.returnOnEquity ?? null;
 
-  // NPM
+  // NPM: financialData → null
   const npm: number | null = fd.profitMargins ?? null;
 
-  // Current Ratio
+  // Current Ratio: financialData → null
   const current_ratio: number | null = fd.currentRatio ?? null;
 
-  // FCF Margin
+  // FCF Margin: financialData (freeCashflow / totalRevenue) → null
   const fcfRaw: number | null = fd.freeCashflow ?? null;
   const revenueRaw: number | null = fd.totalRevenue ?? null;
   const fcf_margin: number | null =
@@ -207,70 +295,44 @@ async function calcBuffettScore(ticker: string): Promise<{
       ? fcfRaw / revenueRaw
       : null;
 
-  // D/E
-  const deRaw: number | null = fd.debtToEquity ?? null;
-  const de: number | null = deRaw !== null ? deRaw : null;
+  // D/E: financialData → null
+  const de: number | null = fd.debtToEquity ?? null;
 
-  // Interest Coverage: operating income / abs(interest expense)
-  let interest_coverage: number | null = null;
-  try {
-    const incomeStatements =
-      (financials as any)?.incomeStatementHistory?.incomeStatementHistory ?? [];
-    if (incomeStatements.length > 0) {
-      const latest = incomeStatements[0];
-      const opIncome: number | null = latest.operatingIncome ?? null;
-      const interestExp: number | null = latest.interestExpense ?? null;
-      if (opIncome !== null && interestExp !== null && interestExp !== 0) {
-        interest_coverage = opIncome / Math.abs(interestExp);
-      }
-    }
-  } catch {}
+  // Interest Coverage: fundamentalsTimeSeries (opIncome / |interestExp|) → null
+  const opIncome = tsLatestFrom(tsIncome, "annualOperatingIncome");
+  const interestExp = tsLatestFrom(tsIncome, "annualInterestExpense");
+  const interest_coverage: number | null =
+    opIncome !== null && interestExp !== null && interestExp !== 0
+      ? opIncome / Math.abs(interestExp)
+      : null;
 
-  // Earnings Consistency: std/mean of net income over available years
+  // ROC: fundamentalsTimeSeries netIncome / (equity + ltDebt)
+  //   → fallback: financialData netIncomeToCommon / (equity + ltDebt) if ts net income missing
+  const netIncomeLatestTs = tsLatestFrom(tsIncome, "annualNetIncome");
+  const netIncomeFd: number | null = (fd.netIncomeToCommon as number) ?? null;
+  const netIncomeLatest = netIncomeLatestTs ?? netIncomeFd;
+  const equity = tsLatestFrom(tsBalance, "annualStockholdersEquity");
+  const ltDebt = tsLatestFrom(tsBalance, "annualLongTermDebt") ?? 0; // 0 if no LT debt
+  const roc: number | null =
+    netIncomeLatest !== null && equity !== null && equity + ltDebt !== 0
+      ? netIncomeLatest / (equity + ltDebt)
+      : null;
+
+  // Earnings Consistency: multi-year CoV from fundamentalsTimeSeries annualNetIncome
+  //   Requires at least 2 years — no meaningful fallback to single-year data
+  const netIncomes = extractTsValues(tsIncome, "annualNetIncome");
   let earnings_consistency: number | null = null;
-  try {
-    const incomeStatements =
-      (financials as any)?.incomeStatementHistory?.incomeStatementHistory ?? [];
-    const netIncomes: number[] = incomeStatements
-      .map((s: any) => s.netIncome)
-      .filter((n: any) => typeof n === "number" && isFinite(n));
-    if (netIncomes.length >= 2) {
-      const mean = netIncomes.reduce((a, b) => a + b, 0) / netIncomes.length;
-      const variance =
-        netIncomes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / netIncomes.length;
-      const std = Math.sqrt(variance);
-      if (mean !== 0) {
-        earnings_consistency = Math.abs(std / mean);
-      }
+  if (netIncomes.length >= 2) {
+    const mean = netIncomes.reduce((a, b) => a + b, 0) / netIncomes.length;
+    const variance =
+      netIncomes.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / netIncomes.length;
+    const std = Math.sqrt(variance);
+    if (mean !== 0) {
+      earnings_consistency = Math.abs(std / mean);
     }
-  } catch {}
+  }
 
-  // ROC: net income / (common equity + long term debt)
-  let roc: number | null = null;
-  try {
-    const sheets =
-      (balanceSheet as any)?.balanceSheetHistory?.balanceSheetStatements ?? [];
-    const incomeStatements =
-      (financials as any)?.incomeStatementHistory?.incomeStatementHistory ?? [];
-    if (sheets.length > 0 && incomeStatements.length > 0) {
-      const latestSheet = sheets[0];
-      const latestIncome = incomeStatements[0];
-      const commonEquity: number | null =
-        latestSheet.stockholdersEquity ?? latestSheet.commonStockEquity ?? null;
-      const longTermDebt: number | null = latestSheet.longTermDebt ?? null;
-      const netIncome: number | null = latestIncome.netIncome ?? null;
-      if (
-        commonEquity !== null &&
-        longTermDebt !== null &&
-        netIncome !== null &&
-        commonEquity + longTermDebt !== 0
-      ) {
-        roc = netIncome / (commonEquity + longTermDebt);
-      }
-    }
-  } catch {}
-
-  // ── Assemble metrics ────────────────────────────────────────────────────────
+  // ── Assemble metrics ─────────────────────────────────────────────────────────
   const rawValues: Record<string, number | null> = {
     roe,
     roc,
@@ -283,25 +345,35 @@ async function calcBuffettScore(ticker: string): Promise<{
   };
 
   const metrics = Object.entries(METRIC_META).map(([key, meta]) => {
-    const value = rawValues[key] ?? null;
+    const notApplicable = !isMetricApplicable(key, sector);
+    const value = notApplicable ? null : (rawValues[key] ?? null);
     const percentile = value !== null ? calcPercentile(value, key) : null;
-    const color = colorFromPercentile(percentile);
+    const color: "green" | "amber" | "red" | "gray" = notApplicable
+      ? "gray"
+      : colorFromPercentile(percentile);
+
+    const explanation = notApplicable
+      ? `Not meaningful for the ${sector} sector.`
+      : meta.explanation;
+
     return {
       key,
       name: meta.name,
       value,
-      formattedValue: formatValue(key, value),
+      formattedValue: notApplicable ? "N/A" : formatValue(key, value),
       percentile: percentile !== null ? Math.round(percentile) : null,
       color,
-      explanation: meta.explanation,
+      explanation,
       buffettWhy: meta.buffettWhy,
+      notApplicable,
     };
   });
 
-  // ── Buffett Score (weighted average of percentile scores) ───────────────────
+  // ── Buffett Score ─────────────────────────────────────────────────────────────
   let weightedSum = 0;
   let weightTotal = 0;
   for (const m of metrics) {
+    if (m.notApplicable) continue; // excluded metrics don't lower confidence
     const w = WEIGHTS[m.key] ?? 0;
     if (m.percentile !== null) {
       weightedSum += m.percentile * w;
@@ -312,26 +384,37 @@ async function calcBuffettScore(ticker: string): Promise<{
   const scoreColor: "green" | "amber" | "red" =
     buffettScore >= 70 ? "green" : buffettScore >= 40 ? "amber" : "red";
 
-  // ── Filing date ─────────────────────────────────────────────────────────────
+  // ── Layer 3: Score confidence ─────────────────────────────────────────────────
+  // Total applicable weight (excludes sector-excluded metrics)
+  const applicableWeight = Object.entries(WEIGHTS)
+    .filter(([key]) => isMetricApplicable(key, sector))
+    .reduce((sum, [, w]) => sum + w, 0);
+  const scoreConfidence =
+    applicableWeight > 0 ? Math.round((weightTotal / applicableWeight) * 100) : 0;
+
+  // ── Filing date ───────────────────────────────────────────────────────────────
+  // Try time series first, fall back to financialData mostRecentQuarter
   let filingDate: string | null = null;
   try {
-    const latestStmt = (financials as any)?.incomeStatementHistory?.incomeStatementHistory?.[0];
-    if (latestStmt?.endDate) {
-      const d = new Date(latestStmt.endDate);
-      filingDate = d.toLocaleDateString("en-US", {
+    const tsDate =
+      tsDateFrom(tsIncome, "annualNetIncome") ??
+      tsDateFrom(tsBalance, "annualStockholdersEquity");
+    if (tsDate) {
+      filingDate = tsDate.toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
+    } else if (fd.mostRecentQuarter) {
+      filingDate = new Date(
+        typeof fd.mostRecentQuarter === "number"
+          ? fd.mostRecentQuarter * 1000
+          : fd.mostRecentQuarter
+      ).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     }
   } catch {}
 
-  const companyName: string | null =
-    ap.companyOfficers !== undefined
-      ? null
-      : null;
-
-  // Try to get company name from a basic quote
+  // ── Company name ──────────────────────────────────────────────────────────────
   let displayName: string | null = null;
   try {
     const quote = await yahooFinance.quote(ticker);
@@ -341,10 +424,11 @@ async function calcBuffettScore(ticker: string): Promise<{
   return {
     ticker: ticker.toUpperCase(),
     companyName: displayName,
-    sector: ap.sector ?? null,
+    sector,
     filingDate,
     buffettScore,
     scoreColor,
+    scoreConfidence,
     metrics,
     disclaimer:
       "This score reflects historical patterns from 2020–2024 data. Not financial advice.",
@@ -366,7 +450,8 @@ router.get("/stocks/:ticker", async (req, res): Promise<void> => {
 
   try {
     const result = await calcBuffettScore(ticker);
-    res.json(GetStockResponse.parse(result));
+    const similarStocks = findSimilarStocks(ticker, result.buffettScore);
+    res.json(GetStockResponse.parse({ ...result, similarStocks }));
   } catch (err: any) {
     req.log.warn({ err, ticker }, "Stock lookup failed");
     if (
@@ -386,35 +471,14 @@ router.get("/stocks/:ticker", async (req, res): Promise<void> => {
   }
 });
 
-router.get("/stocks/:ticker/similar", async (req, res): Promise<void> => {
+router.get("/stocks/:ticker/similar", (req, res): void => {
   const raw = Array.isArray(req.params.ticker)
     ? req.params.ticker[0]
     : req.params.ticker;
-  const currentTicker = raw?.toUpperCase().trim();
+  const currentTicker = raw?.toUpperCase().trim() ?? "";
 
-  // Return a curated subset excluding the current ticker
-  const candidates = SIMILAR_TICKERS.filter((t) => t !== currentTicker).slice(0, 6);
-
-  const results = await Promise.allSettled(
-    candidates.map(async (t) => {
-      const score = await calcBuffettScore(t);
-      return {
-        ticker: score.ticker,
-        companyName: score.companyName,
-        sector: score.sector,
-        buffettScore: score.buffettScore,
-        scoreColor: score.scoreColor,
-      };
-    })
-  );
-
-  const similar = results
-    .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
-    .map((r) => r.value)
-    .sort((a, b) => b.buffettScore - a.buffettScore)
-    .slice(0, 4);
-
-  res.json(GetSimilarStocksResponse.parse(similar));
+  const similar = findSimilarStocks(currentTicker, 50);
+  res.json(similar);
 });
 
 export default router;

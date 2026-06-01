@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { MetricScore } from './metricScore';
+import type { SimilarStock } from './similarStock';
 import type { StockResultScoreColor } from './stockResultScoreColor';
 
 export interface StockResult {
@@ -20,6 +21,10 @@ export interface StockResult {
   buffettScore: number;
   /** green=70+, amber=40-69, red=<40 */
   scoreColor: StockResultScoreColor;
+  /** Percentage of applicable metric weight covered by actual data (0-100) */
+  scoreConfidence: number;
   metrics: MetricScore[];
   disclaimer: string;
+  /** 4 stocks from the scored universe whose Buffett scores are closest to this one */
+  similarStocks: SimilarStock[];
 }

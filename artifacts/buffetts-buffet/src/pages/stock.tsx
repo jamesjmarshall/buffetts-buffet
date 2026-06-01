@@ -2,8 +2,6 @@ import { useRoute, Link } from "wouter";
 import {
   useGetStock,
   getGetStockQueryKey,
-  useGetSimilarStocks,
-  getGetSimilarStocksQueryKey,
 } from "@workspace/api-client-react";
 import {
   Radar,
@@ -12,7 +10,7 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from "recharts";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info, TrendingUp } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // ── Metric display config ────────────────────────────────────────────────────
@@ -82,13 +80,9 @@ export function StockResults() {
   const [, params] = useRoute("/stock/:ticker");
   const ticker = params?.ticker?.toUpperCase() || "";
 
-  // ── Single data object — swap the hook for any data source and the UI is unchanged ──
+  // Single data object: swap the hook for any data source and the UI is unchanged
   const { data: stock, isLoading, isError } = useGetStock(ticker, {
     query: { enabled: !!ticker, queryKey: getGetStockQueryKey(ticker) },
-  });
-
-  const { data: similar } = useGetSimilarStocks(ticker, {
-    query: { enabled: !!ticker, queryKey: getGetSimilarStocksQueryKey(ticker) },
   });
 
   // ── Loading ──────────────────────────────────────────────────────────────
@@ -134,11 +128,20 @@ export function StockResults() {
   const summary = generateSummary(stock.metrics, stock.scoreColor);
   const circumference = 2 * Math.PI * 72;
 
-  const chartData = stock.metrics.map((m) => ({
-    subject: shortLabel(m.name),
-    A: m.percentile ?? 0,
-    fullMark: 100,
-  }));
+  // Only plot metrics that have real data; keeps the polygon uniform rather than
+  // collapsing toward zero for missing/excluded metrics.
+  const chartData = stock.metrics
+    .filter((m) => !m.notApplicable && m.value !== null && m.percentile !== null)
+    .map((m) => ({
+      subject: shortLabel(m.name),
+      A: m.percentile ?? 0,
+      fullMark: 100,
+    }));
+
+  // Data-gap footnote: metrics that are null due to API availability (not sector exclusions)
+  const nullDataMetrics = stock.metrics.filter((m) => !m.notApplicable && m.value === null);
+  const totalApplicable = stock.metrics.filter((m) => !m.notApplicable).length;
+  const availableCount = totalApplicable - nullDataMetrics.length;
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
@@ -208,6 +211,21 @@ export function StockResults() {
             <p className="text-center text-xs text-primary-foreground/60 max-w-[180px] leading-relaxed">
               {summary}
             </p>
+            {/* Score confidence */}
+            <div className="flex items-center gap-1.5 mt-1">
+              <TrendingUp className="h-3 w-3 text-primary-foreground/40 shrink-0" />
+              <span className="text-[10px] text-primary-foreground/45 leading-none">
+                {stock.scoreConfidence}% confidence, {availableCount} of {totalApplicable} metrics
+              </span>
+            </div>
+
+            {/* Methodology link */}
+            <Link
+              href="/research"
+              className="mt-1 text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
+            >
+              Score methodology
+            </Link>
           </div>
         </div>
       </div>
@@ -267,16 +285,22 @@ export function StockResults() {
           <div className="space-y-1.5">
             {stock.metrics.map((metric) => {
               const pct = metric.percentile;
-              const sig = signalColor(pct);
+              const isNA = metric.notApplicable;
+              const isMissing = !isNA && metric.value === null;
+              const sig = isNA || isMissing ? "gray" : signalColor(pct);
               const sigHex = sig === "green" ? "#2D6A4F" : sig === "red" ? "#C1121F" : "#9ca3af";
 
               return (
                 <div key={metric.key}
-                  className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 items-center bg-card border border-border/50 rounded-xl px-4 py-3 hover:border-accent/30 transition-colors group"
+                  className={`grid grid-cols-[1fr_auto_auto_auto] gap-x-4 items-center bg-card border rounded-xl px-4 py-3 transition-colors group ${
+                    isNA ? "border-border/25 opacity-60" : "border-border/50 hover:border-accent/30"
+                  }`}
                 >
                   {/* Metric name */}
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-xl shrink-0">{METRIC_ICONS[metric.key] ?? "📊"}</span>
+                    <span className={`text-xl shrink-0 ${isNA ? "grayscale opacity-50" : ""}`}>
+                      {METRIC_ICONS[metric.key] ?? "📊"}
+                    </span>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="font-semibold text-sm text-foreground truncate">{metric.name}</span>
@@ -290,26 +314,29 @@ export function StockResults() {
                           </TooltipContent>
                         </Tooltip>
                       </div>
-                      {/* Percentile progress bar */}
-                      <div className="mt-1 h-1 w-full max-w-[160px] rounded-full bg-muted overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-1000"
-                          style={{ width: `${pct ?? 0}%`, backgroundColor: sigHex }}
-                        />
-                      </div>
+                      {isNA ? (
+                        <p className="text-[10px] text-muted-foreground/60 italic mt-0.5">{metric.explanation}</p>
+                      ) : (
+                        <div className="mt-1 h-1 w-full max-w-[160px] rounded-full bg-muted overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-1000"
+                            style={{ width: `${pct ?? 0}%`, backgroundColor: sigHex }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Value */}
                   <div className="text-right w-20">
-                    <span className="font-mono font-bold text-sm text-foreground">
-                      {metric.formattedValue ?? "—"}
+                    <span className={`font-mono font-bold text-sm ${isNA || isMissing ? "text-muted-foreground" : "text-foreground"}`}>
+                      {metric.formattedValue ?? "-"}
                     </span>
                   </div>
 
                   {/* Percentile */}
                   <div className="text-right w-16">
                     <span className="font-mono font-bold text-sm text-primary">
-                      {pct !== null ? `${pct}th` : "—"}
+                      {pct !== null ? `${pct}th` : "-"}
                     </span>
                   </div>
 
@@ -323,50 +350,16 @@ export function StockResults() {
               );
             })}
           </div>
+
+          {/* Data-gap footnote */}
+          {nullDataMetrics.length > 0 && (
+            <p className="mt-3 text-[11px] text-muted-foreground/55 leading-relaxed">
+              {nullDataMetrics.length} {nullDataMetrics.length === 1 ? "metric" : "metrics"} unavailable. Yahoo Finance API change. Score calculated from {availableCount} of {totalApplicable} metrics.
+            </p>
+          )}
         </div>
       </div>
 
-      {/* ── Similar High-Scorers ──────────────────────────────────────────── */}
-      {similar && similar.length > 0 && (
-        <div className="pt-6 border-t border-border/40">
-          <div className="flex items-center gap-4 mb-6">
-            <h3 className="font-serif font-bold text-2xl text-primary">Similar High-Scorers</h3>
-            <div className="flex-1 h-px bg-gradient-to-r from-border/60 to-transparent" />
-          </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {similar.map((sim) => {
-              const simHex = scoreHex(sim.scoreColor);
-              return (
-                <Link key={sim.ticker} href={`/stock/${sim.ticker}`} className="block group">
-                  <div className="relative bg-card border border-border/50 hover:border-accent/50 rounded-xl p-5 transition-all hover:shadow-md group-hover:-translate-y-1 overflow-hidden">
-                    {/* Score-coloured top bar */}
-                    <div className="absolute top-0 left-0 h-1 rounded-t-xl transition-all"
-                      style={{ width: `${sim.buffettScore}%`, backgroundColor: simHex }}
-                    />
-                    <div className="flex items-start justify-between mb-3 mt-1">
-                      <div>
-                        <span className="font-bold text-lg text-primary">{sim.ticker}</span>
-                        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{sim.companyName}</div>
-                      </div>
-                      <span className="font-serif font-bold text-xl" style={{ color: simHex }}>
-                        {Math.round(sim.buffettScore)}
-                      </span>
-                    </div>
-                    <div className="h-1 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${sim.buffettScore}%`, backgroundColor: simHex }} />
-                    </div>
-                    {sim.sector && (
-                      <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider mt-3">
-                        {sim.sector}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

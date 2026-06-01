@@ -10,6 +10,7 @@ export * from './apiError';
 export * from './healthStatus';
 export * from './metricScore';
 export * from './metricScoreColor';
+export * from './similarStock';
 export * from './stockResult';
 export * from './stockResultScoreColor';
 export * from './stockSummary';

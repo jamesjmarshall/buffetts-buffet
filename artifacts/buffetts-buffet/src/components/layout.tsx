@@ -49,19 +49,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </svg>
 
             <div className="font-serif italic text-xl text-primary-foreground/80">
-              "Built on data. Inspired by the Oracle of Omaha."
+              Built by James Marshall
             </div>
 
             <div className="flex items-center gap-6 text-sm text-primary-foreground/50">
               <span>Historical patterns from 2020–2024. Not financial advice.</span>
               <span>•</span>
               <a
-                href="https://github.com"
+                href="https://github.com/jamesmarshall"
                 target="_blank"
                 rel="noreferrer"
                 className="text-accent hover:text-accent/80 transition-colors font-medium underline underline-offset-4"
               >
                 GitHub
+              </a>
+              <span>•</span>
+              <a
+                href="https://linkedin.com/in/jamesjmarshall"
+                target="_blank"
+                rel="noreferrer"
+                className="text-accent hover:text-accent/80 transition-colors font-medium underline underline-offset-4"
+              >
+                LinkedIn
               </a>
             </div>
           </div>
