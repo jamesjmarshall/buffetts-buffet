@@ -204,8 +204,8 @@ export function StockResults() {
                         fontFamily: "Georgia, serif",
                       }}
                     >
-                      <span className="text-[9px] font-bold tracking-[0.18em] uppercase" style={{ color: "#3a1f00", textShadow: "0 1px 0 rgba(255,220,80,0.4)" }}>
-                        ⚜ Holding Co. ⚜
+                      <span className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#3a1f00", textShadow: "0 1px 0 rgba(255,220,80,0.4)" }}>
+                        ⚜ Why is this score low? ⚜
                       </span>
                     </div>
                   </TooltipTrigger>
