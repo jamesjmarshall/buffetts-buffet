@@ -1,5 +1,4 @@
 import { useRoute, Link } from "wouter";
-import { useEffect, useRef } from "react";
 import {
   useGetStock,
   getGetStockQueryKey,
@@ -144,19 +143,6 @@ export function StockResults() {
 
   const isHoldingCompany = HOLDING_COMPANY_TICKERS.has(ticker);
 
-  const methodologyRef = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const trigger = () => {
-      const el = methodologyRef.current;
-      if (!el) return;
-      el.classList.remove("animate-pulsate");
-      void el.offsetWidth; // force reflow to restart animation
-      el.classList.add("animate-pulsate");
-    };
-    trigger(); // run immediately on mount
-    const id = setInterval(trigger, 5000);
-    return () => clearInterval(id);
-  }, []);
 
   // Data-gap footnote: metrics that are null due to API availability (not sector exclusions)
   const nullDataMetrics = stock.metrics.filter((m) => !m.notApplicable && m.value === null);
@@ -273,14 +259,12 @@ export function StockResults() {
             </div>
 
             {/* Methodology link */}
-            <span ref={methodologyRef} className="inline-block">
-              <Link
-                href="/research"
-                className="text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
-              >
-                Score methodology
-              </Link>
-            </span>
+            <Link
+              href="/research"
+              className="mt-1 text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2 animate-pulsate"
+            >
+              Score methodology
+            </Link>
           </div>
         </div>
       </div>
