@@ -145,7 +145,9 @@ export function StockResults() {
 
   // Data-gap footnote: metrics that are null due to API availability (not sector exclusions)
   const nullDataMetrics = stock.metrics.filter((m) => !m.notApplicable && m.value === null);
-  const totalApplicable = stock.metrics.filter((m) => !m.notApplicable).length;
+  const totalMetrics = stock.metrics.length; // always 8
+  const sectorExcludedCount = stock.metrics.filter((m) => m.notApplicable).length;
+  const totalApplicable = totalMetrics - sectorExcludedCount;
   const availableCount = totalApplicable - nullDataMetrics.length;
 
   // ── Render ───────────────────────────────────────────────────────────────
@@ -241,11 +243,18 @@ export function StockResults() {
               {summary}
             </p>
             {/* Score confidence */}
-            <div className="flex items-center gap-1.5 mt-1">
-              <TrendingUp className="h-3 w-3 text-primary-foreground/40 shrink-0" />
-              <span className="text-[10px] text-primary-foreground/45 leading-none">
-                {stock.scoreConfidence}% confidence, {availableCount} of {totalApplicable} metrics
-              </span>
+            <div className="flex flex-col items-center gap-0.5 mt-1">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="h-3 w-3 text-primary-foreground/40 shrink-0" />
+                <span className="text-[10px] text-primary-foreground/45 leading-none">
+                  {availableCount} of {totalMetrics} metrics scored
+                </span>
+              </div>
+              {sectorExcludedCount > 0 && (
+                <span className="text-[9px] text-primary-foreground/30 leading-none">
+                  {sectorExcludedCount} excluded for sector
+                </span>
+              )}
             </div>
 
             {/* Methodology link */}
@@ -383,7 +392,7 @@ export function StockResults() {
           {/* Data-gap footnote */}
           {nullDataMetrics.length > 0 && (
             <p className="mt-3 text-[11px] text-muted-foreground/55 leading-relaxed">
-              {nullDataMetrics.length} {nullDataMetrics.length === 1 ? "metric" : "metrics"} unavailable. Yahoo Finance API change. Score calculated from {availableCount} of {totalApplicable} metrics.
+              {nullDataMetrics.length} {nullDataMetrics.length === 1 ? "metric" : "metrics"} unavailable due to Yahoo Finance data gaps. Score calculated from {availableCount} of {totalMetrics} metrics.
             </p>
           )}
         </div>
