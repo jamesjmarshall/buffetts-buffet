@@ -11,14 +11,14 @@ import {
 // ── Static data ──────────────────────────────────────────────────────────────
 
 const IMPORTANCE_DATA = [
-  { metric: "Earnings Consistency", short: "Earn. Consistency", weight: 25, key: "earnings_consistency" },
-  { metric: "FCF Margin",           short: "FCF Margin",        weight: 16, key: "fcf_margin" },
-  { metric: "Interest Coverage",    short: "Int. Coverage",     weight: 14, key: "interest_coverage" },
-  { metric: "Net Profit Margin",    short: "Net Margin",        weight: 14, key: "npm" },
-  { metric: "Return on Capital",    short: "ROC",               weight: 13, key: "roc" },
-  { metric: "Current Ratio",        short: "Current Ratio",     weight: 11, key: "current_ratio" },
-  { metric: "Return on Equity",     short: "ROE",               weight: 11, key: "roe" },
-  { metric: "Debt / Equity",        short: "Debt / Equity",     weight: 10, key: "de" },
+  { metric: "Earnings Consistency", short: "Earn. Consistency", weight: 22, key: "earnings_consistency" },
+  { metric: "FCF Margin",           short: "FCF Margin",        weight: 14, key: "fcf_margin" },
+  { metric: "Interest Coverage",    short: "Int. Coverage",     weight: 12, key: "interest_coverage" },
+  { metric: "Net Profit Margin",    short: "Net Margin",        weight: 12, key: "npm" },
+  { metric: "Return on Capital",    short: "ROC",               weight: 11, key: "roc" },
+  { metric: "Current Ratio",        short: "Current Ratio",     weight: 10, key: "current_ratio" },
+  { metric: "Return on Equity",     short: "ROE",               weight: 10, key: "roe" },
+  { metric: "Debt / Equity",        short: "Debt / Equity",     weight:  9, key: "de" },
 ];
 
 const METHODOLOGY_STEPS = [
@@ -52,7 +52,7 @@ const METHODOLOGY_STEPS = [
 const STATS = [
   { value: "1,960", label: "companies analyzed" },
   { value: "2020–2024", label: "data window" },
-  { value: "25%", label: "weight on earnings consistency, the top metric" },
+  { value: "22%", label: "weight on earnings consistency, the top metric" },
 ];
 
 // ── Chart tick component for bold earnings_consistency label ─────────────────
@@ -179,7 +179,7 @@ export function Research() {
 
           {/* Caption */}
           <p className="mt-4 text-center text-xs text-muted-foreground/70 italic border-t border-border/30 pt-4">
-            Earnings consistency (25%) outweighed the bottom two metrics combined (D/E 10% + ROE 11%). Highlighted in gold.
+            Earnings consistency (22%) outweighed the bottom two metrics combined (D/E 9% + ROE 10%). Highlighted in gold.
           </p>
         </div>
       </section>

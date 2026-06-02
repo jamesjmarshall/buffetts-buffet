@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 const EXAMPLES = ["AAPL", "KO", "BRK-B", "JNJ"];
 
 const PILLARS = [
-  { icon: "📈", key: "Earnings Consistency", desc: "Stable profits year over year", weight: "25%" },
-  { icon: "💸", key: "FCF Margin", desc: "Cash left after reinvestment", weight: "16%" },
-  { icon: "🛡️", key: "Interest Coverage", desc: "Ability to service debt", weight: "14%" },
-  { icon: "💰", key: "Net Profit Margin", desc: "Percentage of revenue kept", weight: "14%" },
-  { icon: "🏭", key: "Return on Capital", desc: "Efficiency of capital deployed", weight: "13%" },
-  { icon: "⚖️", key: "Current Ratio", desc: "Short-term financial health", weight: "11%" },
-  { icon: "🔑", key: "Return on Equity", desc: "Returns to shareholders", weight: "11%" },
-  { icon: "📉", key: "Debt / Equity", desc: "Financial leverage (lower = better)", weight: "10%" },
+  { icon: "📈", key: "Earnings Consistency", desc: "Stable profits year over year", weight: "22%" },
+  { icon: "💸", key: "FCF Margin", desc: "Cash left after reinvestment", weight: "14%" },
+  { icon: "🛡️", key: "Interest Coverage", desc: "Ability to service debt", weight: "12%" },
+  { icon: "💰", key: "Net Profit Margin", desc: "Percentage of revenue kept", weight: "12%" },
+  { icon: "🏭", key: "Return on Capital", desc: "Efficiency of capital deployed", weight: "11%" },
+  { icon: "⚖️", key: "Current Ratio", desc: "Short-term financial health", weight: "10%" },
+  { icon: "🔑", key: "Return on Equity", desc: "Returns to shareholders", weight: "10%" },
+  { icon: "📉", key: "Debt / Equity", desc: "Financial leverage (lower = better)", weight: "9%" },
 ];
 
 export function Home() {

@@ -31,14 +31,14 @@ const PERCENTILES: Record<
 
 // Buffett feature importance weights (from Random Forest model)
 const WEIGHTS: Record<string, number> = {
-  earnings_consistency: 0.25,
-  fcf_margin: 0.16,
-  interest_coverage: 0.14,
-  npm: 0.14,
-  roc: 0.13,
-  current_ratio: 0.11,
-  roe: 0.11,
-  de: 0.10,
+  earnings_consistency: 0.22,
+  fcf_margin: 0.14,
+  interest_coverage: 0.12,
+  npm: 0.12,
+  roc: 0.11,
+  current_ratio: 0.10,
+  roe: 0.10,
+  de: 0.09,
 };
 
 const METRIC_META: Record<
@@ -259,12 +259,14 @@ async function calcBuffettScore(ticker: string): Promise<{
     yahooFinance.fundamentalsTimeSeries(ticker, {
       period1: "2019-01-01",
       period2: today,
-      module: "annualNetIncome,annualOperatingIncome,annualInterestExpense" as any,
+      type: "annual",
+      module: "financials",
     }).catch(() => null),
     yahooFinance.fundamentalsTimeSeries(ticker, {
       period1: "2019-01-01",
       period2: today,
-      module: "annualStockholdersEquity,annualLongTermDebt" as any,
+      type: "annual",
+      module: "balance-sheet",
     }).catch(() => null),
   ]);
 
@@ -299,8 +301,8 @@ async function calcBuffettScore(ticker: string): Promise<{
   const de: number | null = fd.debtToEquity ?? null;
 
   // Interest Coverage: fundamentalsTimeSeries (opIncome / |interestExp|) → null
-  const opIncome = tsLatestFrom(tsIncome, "annualOperatingIncome");
-  const interestExp = tsLatestFrom(tsIncome, "annualInterestExpense");
+  const opIncome = tsLatestFrom(tsIncome, "operatingIncome");
+  const interestExp = tsLatestFrom(tsIncome, "interestExpense");
   const interest_coverage: number | null =
     opIncome !== null && interestExp !== null && interestExp !== 0
       ? opIncome / Math.abs(interestExp)
@@ -308,19 +310,19 @@ async function calcBuffettScore(ticker: string): Promise<{
 
   // ROC: fundamentalsTimeSeries netIncome / (equity + ltDebt)
   //   → fallback: financialData netIncomeToCommon / (equity + ltDebt) if ts net income missing
-  const netIncomeLatestTs = tsLatestFrom(tsIncome, "annualNetIncome");
+  const netIncomeLatestTs = tsLatestFrom(tsIncome, "netIncome");
   const netIncomeFd: number | null = (fd.netIncomeToCommon as number) ?? null;
   const netIncomeLatest = netIncomeLatestTs ?? netIncomeFd;
-  const equity = tsLatestFrom(tsBalance, "annualStockholdersEquity");
-  const ltDebt = tsLatestFrom(tsBalance, "annualLongTermDebt") ?? 0; // 0 if no LT debt
+  const equity = tsLatestFrom(tsBalance, "commonStockEquity");
+  const ltDebt = tsLatestFrom(tsBalance, "longTermDebt") ?? 0;
   const roc: number | null =
     netIncomeLatest !== null && equity !== null && equity + ltDebt !== 0
       ? netIncomeLatest / (equity + ltDebt)
       : null;
 
-  // Earnings Consistency: multi-year CoV from fundamentalsTimeSeries annualNetIncome
+  // Earnings Consistency: multi-year CoV from fundamentalsTimeSeries netIncome
   //   Requires at least 2 years — no meaningful fallback to single-year data
-  const netIncomes = extractTsValues(tsIncome, "annualNetIncome");
+  const netIncomes = extractTsValues(tsIncome, "netIncome");
   let earnings_consistency: number | null = null;
   if (netIncomes.length >= 2) {
     const mean = netIncomes.reduce((a, b) => a + b, 0) / netIncomes.length;
@@ -397,8 +399,8 @@ async function calcBuffettScore(ticker: string): Promise<{
   let filingDate: string | null = null;
   try {
     const tsDate =
-      tsDateFrom(tsIncome, "annualNetIncome") ??
-      tsDateFrom(tsBalance, "annualStockholdersEquity");
+      tsDateFrom(tsIncome, "netIncome") ??
+      tsDateFrom(tsBalance, "commonStockEquity");
     if (tsDate) {
       filingDate = tsDate.toLocaleDateString("en-US", {
         year: "numeric",
