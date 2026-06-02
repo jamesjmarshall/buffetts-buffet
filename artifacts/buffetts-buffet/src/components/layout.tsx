@@ -10,10 +10,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="border-b border-border/40 bg-background/90 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">
-            {/* Diner icon */}
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-sm group-hover:bg-accent transition-colors">
-              <span className="text-sm" aria-hidden="true">🍽️</span>
-            </div>
+            {/* Cloche icon */}
+            <img
+              src="/cloche-icon.png"
+              alt=""
+              aria-hidden="true"
+              className="w-8 h-8 rounded-lg shrink-0 shadow-sm object-cover"
+            />
             <span className="font-serif text-xl font-bold italic tracking-tight text-primary group-hover:text-accent transition-colors whitespace-nowrap">
               Buffett's Buffet
             </span>
