@@ -93,6 +93,9 @@ export function Home() {
               </form>
 
               <div className="mt-6 pt-6 border-t border-border/40 flex flex-col items-center gap-3">
+                <p className="text-sm text-muted-foreground text-center">
+                  US-listed stocks only. Non-US tickers may return incomplete data.
+                </p>
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Today's Specials</span>
                 <div className="flex flex-wrap justify-center gap-2">
                   {EXAMPLES.map(ex => (
@@ -105,9 +108,6 @@ export function Home() {
                     </button>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground text-center">
-                  US-listed stocks only. Non-US tickers may return incomplete data.
-                </p>
               </div>
             </div>
             {/* Gold bottom bar */}
