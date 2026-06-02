@@ -190,14 +190,26 @@ export function StockResults() {
 
           {/* Score circle */}
           <div className="shrink-0 flex flex-col items-center gap-2">
-            <div className="relative w-40 h-40">
-              {/* Holding company context badge */}
+            <div className={`relative w-40 h-40 ${isHoldingCompany ? "mt-8" : ""}`}>
+              {/* Holding company menu embellishment badge */}
               {isHoldingCompany && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="absolute top-1 left-1 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 cursor-help backdrop-blur-sm">
-                      <span className="text-[10px]">🍽️</span>
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-accent/90">Holding Co.</span>
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-10 cursor-help select-none whitespace-nowrap flex flex-col items-center gap-0">
+                      <div className="flex items-center gap-1">
+                        <span className="text-amber-400/80 text-[8px]">✦</span>
+                        <div className="h-px w-5 bg-amber-400/50" />
+                        <span style={{ fontFamily: "Georgia, serif" }} className="text-[9px] font-bold tracking-[0.2em] uppercase text-amber-400/90">
+                          Holding Co.
+                        </span>
+                        <div className="h-px w-5 bg-amber-400/50" />
+                        <span className="text-amber-400/80 text-[8px]">✦</span>
+                      </div>
+                      <div className="flex items-center gap-0.5">
+                        <div className="h-px w-14 bg-amber-400/30" />
+                        <span className="text-amber-400/40 text-[6px]">◆</span>
+                        <div className="h-px w-14 bg-amber-400/30" />
+                      </div>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-[260px] p-3 text-sm leading-relaxed">
