@@ -191,7 +191,7 @@ export function StockResults() {
           </div>
 
           {/* Score circle */}
-          <div className="shrink-0 flex flex-col items-center gap-2">
+          <div className="shrink-0 flex flex-col items-center gap-2 self-center md:self-auto">
             <div className="relative w-40 h-40">
               {/* Holding company gold plaque badge */}
               {isHoldingCompany && (
@@ -313,9 +313,9 @@ export function StockResults() {
           </h3>
 
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-x-4 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-x-3 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <span>Metric</span>
-            <span className="text-right w-20">Value</span>
+            <span className="hidden sm:block text-right w-20">Value</span>
             <span className="text-right w-16">Percentile</span>
             <span className="text-center w-12">Signal</span>
           </div>
@@ -330,7 +330,7 @@ export function StockResults() {
 
               return (
                 <div key={metric.key}
-                  className={`grid grid-cols-[1fr_auto_auto_auto] gap-x-4 items-center bg-card border rounded-xl px-4 py-3 transition-colors group ${
+                  className={`grid grid-cols-[1fr_auto_auto] sm:grid-cols-[1fr_auto_auto_auto] gap-x-3 items-center bg-card border rounded-xl px-4 py-3 transition-colors group ${
                     isNA ? "border-border/25 opacity-60" : "border-border/50 hover:border-accent/30"
                   }`}
                 >
@@ -364,8 +364,8 @@ export function StockResults() {
                     </div>
                   </div>
 
-                  {/* Value */}
-                  <div className="text-right w-20">
+                  {/* Value — hidden on mobile */}
+                  <div className="hidden sm:block text-right w-20">
                     <span className={`font-mono font-bold text-sm ${isNA || isMissing ? "text-muted-foreground" : "text-foreground"}`}>
                       {metric.formattedValue ?? "-"}
                     </span>
