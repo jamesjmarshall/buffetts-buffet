@@ -94,7 +94,7 @@ export function Home() {
 
               <div className="mt-6 flex flex-col items-center gap-3">
                 <p className="text-sm text-muted-foreground text-center">
-                  US-listed stocks only. Non-US tickers may return incomplete data.
+                  US-listed stocks only.
                 </p>
                 <div className="w-full border-t border-border/40 pt-3 flex flex-col items-center gap-3">
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Today's Specials</span>
