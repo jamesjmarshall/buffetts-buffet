@@ -93,7 +93,7 @@ export function Home() {
               </form>
 
               <div className="mt-3 flex flex-col items-center gap-0">
-                <p className="text-sm text-muted-foreground text-center mb-5">
+                <p className="text-xs text-muted-foreground text-center mb-5">
                   US-listed stocks only.
                 </p>
                 <div className="w-full border-t border-border/40 pt-3 flex flex-col items-center gap-3">
