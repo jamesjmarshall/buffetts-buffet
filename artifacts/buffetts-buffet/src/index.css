@@ -138,3 +138,13 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+@keyframes pulsate-scale {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.22); }
+}
+
+.animate-pulsate {
+  animation: pulsate-scale 0.45s ease-in-out 5;
+  display: inline-block;
+}

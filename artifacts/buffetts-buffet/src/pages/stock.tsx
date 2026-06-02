@@ -251,7 +251,7 @@ export function StockResults() {
             {/* Methodology link */}
             <Link
               href="/research"
-              className="mt-1 text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
+              className="mt-1 text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2 animate-pulsate"
             >
               Score methodology
             </Link>
