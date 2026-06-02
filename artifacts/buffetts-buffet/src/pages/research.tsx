@@ -52,7 +52,7 @@ const METHODOLOGY_STEPS = [
 const STATS = [
   { value: "1,960", label: "companies analyzed" },
   { value: "2020–2021", label: "training data, 3-year forward returns" },
-  { value: "22%", label: "weight on earnings consistency, the top metric" },
+  { value: "3 years", label: "forward return window used to define outperformance" },
 ];
 
 // ── Chart tick component for bold earnings_consistency label ─────────────────
