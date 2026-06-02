@@ -52,9 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               Built by James Marshall
             </div>
 
-            <div className="flex items-center gap-6 text-sm text-primary-foreground/50">
-              <span>Historical patterns from 2020–2024. Not financial advice.</span>
-              <span>•</span>
+            <div className="flex items-center gap-6 text-sm">
               <a
                 href="https://github.com/jamesjmarshall"
                 target="_blank"
@@ -63,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               >
                 GitHub
               </a>
-              <span>•</span>
+              <span className="text-primary-foreground/30">•</span>
               <a
                 href="https://linkedin.com/in/jamesjmarshall"
                 target="_blank"
@@ -73,6 +71,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 LinkedIn
               </a>
             </div>
+            <span className="text-sm text-primary-foreground/50">Historical patterns from 2020–2024. Not financial advice.</span>
           </div>
         </div>
       </footer>
