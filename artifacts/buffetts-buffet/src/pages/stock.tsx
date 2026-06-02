@@ -196,12 +196,13 @@ export function StockResults() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
-                      className="absolute top-4 left-1/2 -translate-x-1/2 z-10 cursor-help select-none whitespace-nowrap px-3 py-1 rounded"
+                      className="absolute top-4 left-1/2 -translate-x-1/2 z-10 cursor-pointer select-none whitespace-nowrap px-3 py-1 rounded transition-all duration-200 ease-out hover:scale-125 hover:-rotate-[5deg] hover:shadow-lg"
                       style={{
                         background: "linear-gradient(160deg, #f5c842 0%, #c8960c 50%, #e8b824 100%)",
                         border: "1px solid #f0d060",
                         boxShadow: "0 1px 0 #a07808 inset, 0 2px 6px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.25)",
                         fontFamily: "Georgia, serif",
+                        transformOrigin: "center center",
                       }}
                     >
                       <span className="text-[9px] font-bold tracking-[0.12em] uppercase" style={{ color: "#3a1f00", textShadow: "0 1px 0 rgba(255,220,80,0.4)" }}>
