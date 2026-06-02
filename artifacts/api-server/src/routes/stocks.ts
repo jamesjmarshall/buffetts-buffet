@@ -150,9 +150,17 @@ function formatValue(key: string, value: number | null): string | null {
 
 // ── Layer 2: Sector-aware metric exclusions ───────────────────────────────────
 // Some metrics are structurally meaningless for certain sectors.
+// Metrics excluded per sector because they are structurally inapplicable:
+//   Financial Services: D/E and Current Ratio (leverage is the business model for banks/insurers,
+//     not a risk signal); Interest Coverage (interest income/expense IS the product);
+//     Earnings Consistency (GAAP mark-to-market of investment portfolios creates
+//     artificial earnings swings that don't reflect business quality).
+//   Real Estate: FCF Margin (REITs are required to distribute ~90% of income, so
+//     retained FCF is structurally near zero); D/E and Interest Coverage (REITs
+//     are mandated to use leverage as their primary financing model).
 const SECTOR_EXCLUSIONS: Record<string, string[]> = {
-  "Financial Services": ["current_ratio", "de"],
-  "Real Estate": ["fcf_margin"],
+  "Financial Services": ["current_ratio", "de", "interest_coverage", "earnings_consistency"],
+  "Real Estate": ["fcf_margin", "de", "interest_coverage"],
 };
 
 function isMetricApplicable(metricKey: string, sector: string | null): boolean {
