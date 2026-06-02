@@ -190,13 +190,13 @@ export function StockResults() {
 
           {/* Score circle */}
           <div className="shrink-0 flex flex-col items-center gap-2">
-            <div className={`relative w-40 h-40 ${isHoldingCompany ? "mt-8" : ""}`}>
+            <div className="relative w-40 h-40">
               {/* Holding company gold plaque badge */}
               {isHoldingCompany && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
-                      className="absolute -top-8 left-1/2 -translate-x-1/2 z-10 cursor-help select-none whitespace-nowrap px-3 py-1 rounded"
+                      className="absolute top-4 left-1/2 -translate-x-1/2 z-10 cursor-help select-none whitespace-nowrap px-3 py-1 rounded"
                       style={{
                         background: "linear-gradient(160deg, #f5c842 0%, #c8960c 50%, #e8b824 100%)",
                         border: "1px solid #f0d060",
