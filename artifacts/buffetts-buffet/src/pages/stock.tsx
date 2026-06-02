@@ -210,9 +210,8 @@ export function StockResults() {
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" sideOffset={8} className="max-w-[280px] p-3 leading-relaxed animate-in fade-in-0 zoom-in-95 duration-100">
-                    <p className="font-bold mb-1.5 text-accent">Diversified holding company</p>
-                    <p className="text-xs text-muted-foreground">This score measures fundamental ratios like ROE and ROC. At Berkshire's scale, those numbers are naturally moderate. Its real edge comes from its $300B cash fortress, insurance float, wide economic moat, and AA credit rating. None of those are captured in these 8 metrics.</p>
+                  <TooltipContent side="bottom" sideOffset={8} className="max-w-[280px] p-3 animate-in fade-in-0 zoom-in-95 duration-100">
+                    <p className="text-xs leading-relaxed">This score measures fundamental ratios like ROE and ROC. At Berkshire's scale, those numbers are naturally moderate. Its real edge comes from its $300B cash fortress, insurance float, wide economic moat, and AA credit rating. None of those are captured in these 8 metrics.</p>
                   </TooltipContent>
                 </Tooltip>
               )}
