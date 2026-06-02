@@ -64,6 +64,9 @@ function generateSummary(
   return `${prefix}${topStr}${concernStr}`.trim();
 }
 
+// Diversified holding companies where fundamental ratios understate quality
+const HOLDING_COMPANY_TICKERS = new Set(["BRK-A", "BRK-B", "MKL", "SPLP", "CNSWF"]);
+
 // Score colour helpers
 function scoreHex(color: string) {
   if (color === "green") return "#2D6A4F";
@@ -138,6 +141,8 @@ export function StockResults() {
       fullMark: 100,
     }));
 
+  const isHoldingCompany = HOLDING_COMPANY_TICKERS.has(ticker);
+
   // Data-gap footnote: metrics that are null due to API availability (not sector exclusions)
   const nullDataMetrics = stock.metrics.filter((m) => !m.notApplicable && m.value === null);
   const totalApplicable = stock.metrics.filter((m) => !m.notApplicable).length;
@@ -186,6 +191,21 @@ export function StockResults() {
           {/* Score circle */}
           <div className="shrink-0 flex flex-col items-center gap-2">
             <div className="relative w-40 h-40">
+              {/* Holding company context badge */}
+              {isHoldingCompany && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="absolute top-1 left-1 z-10 flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 cursor-help backdrop-blur-sm">
+                      <span className="text-[10px]">🍽️</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-accent/90">Holding Co.</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[260px] p-3 text-sm leading-relaxed">
+                    <p className="font-bold mb-1 text-accent">Diversified holding company</p>
+                    <p className="text-xs text-muted-foreground">Scores reflect fundamental ratios, not balance sheet strength or competitive moat — which are not captured in these 8 metrics.</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               {/* Glow */}
               <div className="absolute inset-6 rounded-full opacity-25 blur-xl" style={{ backgroundColor: hex }} />
               {/* Track + arc */}
