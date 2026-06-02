@@ -210,9 +210,9 @@ export function StockResults() {
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" sideOffset={8} className="max-w-[260px] p-3 text-sm leading-relaxed animate-in fade-in-0 zoom-in-95 duration-100">
-                    <p className="font-bold mb-1 text-accent">Diversified holding company</p>
-                    <p className="text-xs text-muted-foreground">Scores reflect fundamental ratios, not balance sheet strength or competitive moat — which are not captured in these 8 metrics.</p>
+                  <TooltipContent side="bottom" sideOffset={8} className="max-w-[280px] p-3 leading-relaxed animate-in fade-in-0 zoom-in-95 duration-100">
+                    <p className="font-bold mb-1.5 text-accent">Diversified holding company</p>
+                    <p className="text-xs text-muted-foreground">This score measures fundamental ratios like ROE and ROC. At Berkshire's scale, those numbers are naturally moderate. Its real edge comes from its $300B cash fortress, insurance float, wide economic moat, and AA credit rating. None of those are captured in these 8 metrics.</p>
                   </TooltipContent>
                 </Tooltip>
               )}
