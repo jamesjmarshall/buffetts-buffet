@@ -47,7 +47,7 @@ app.use("/api", router);
 // In production Express serves the built Vite frontend alongside the API.
 // The frontend dist is two levels up from this file's build output location.
 if (process.env.NODE_ENV === "production") {
-  const frontendDist = path.resolve(__dirname, "../../buffetts-buffet/dist");
+  const frontendDist = path.resolve(__dirname, "../../buffetts-buffet/dist/public");
   if (fs.existsSync(frontendDist)) {
     app.use(express.static(frontendDist));
     // SPA fallback: any non-/api route serves index.html for client-side routing
