@@ -193,7 +193,7 @@ export function StockResults() {
             <div className="relative w-40 h-40">
               {/* Holding company gold plaque badge */}
               {isHoldingCompany && (
-                <Tooltip>
+                <Tooltip delayDuration={80}>
                   <TooltipTrigger asChild>
                     <div
                       className="absolute top-4 left-1/2 -translate-x-1/2 z-10 cursor-pointer select-none whitespace-nowrap px-3 py-1 rounded transition-all duration-200 ease-out hover:scale-125 hover:-rotate-[5deg] hover:shadow-lg"
@@ -210,7 +210,7 @@ export function StockResults() {
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[260px] p-3 text-sm leading-relaxed">
+                  <TooltipContent side="bottom" sideOffset={8} className="max-w-[260px] p-3 text-sm leading-relaxed animate-in fade-in-0 zoom-in-95 duration-100">
                     <p className="font-bold mb-1 text-accent">Diversified holding company</p>
                     <p className="text-xs text-muted-foreground">Scores reflect fundamental ratios, not balance sheet strength or competitive moat — which are not captured in these 8 metrics.</p>
                   </TooltipContent>
