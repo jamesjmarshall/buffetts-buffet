@@ -25,7 +25,7 @@ const METHODOLOGY_STEPS = [
   {
     n: "01",
     title: "Data Collection",
-    body: "Pulled fundamental snapshots for ~1,960 S&P 500 companies at end of 2020-2021 from the Simfin dataset, covering balance sheets, income statements, and cash flow statements.",
+    body: "Collected fundamental snapshots for ~1,960 S&P 500 companies at end of 2020-2021 from the Simfin dataset, covering balance sheets, income statements, and cash flow statements.",
   },
   {
     n: "02",
@@ -35,7 +35,7 @@ const METHODOLOGY_STEPS = [
   {
     n: "03",
     title: "Label Generation",
-    body: "Each company was labelled 1 (outperformed the S&P 500 benchmark over the following 3 years through 2024) or 0 (underperformed). The benchmark was total return including dividends.",
+    body: "Each company was tagged as outperformer or underperformer based on whether its total return beat the S&P 500 over the following 3 years.",
   },
   {
     n: "04",
@@ -45,13 +45,13 @@ const METHODOLOGY_STEPS = [
   {
     n: "05",
     title: "Live Scoring",
-    body: "Each new ticker is fetched live from Yahoo Finance. Metrics are calculated, then scored against the empirical 25th/50th/75th percentile thresholds from the training dataset.",
+    body: "Each new ticker is fetched live from Yahoo Finance. Metrics are calculated and scored against percentile benchmarks derived from the training dataset.",
   },
 ];
 
 const STATS = [
   { value: "1,960", label: "companies analyzed" },
-  { value: "2020–2024", label: "data window" },
+  { value: "2020–2021", label: "training data, 3-year forward returns" },
   { value: "22%", label: "weight on earnings consistency, the top metric" },
 ];
 
@@ -101,9 +101,8 @@ export function Research() {
           {/* Pull quote */}
           <blockquote className="border-l-4 border-accent text-left mx-auto max-w-2xl bg-white/5 rounded-r-xl px-6 py-5">
             <p className="font-serif italic text-xl sm:text-2xl text-primary-foreground/90 leading-relaxed">
-              "Earnings consistency was the single strongest predictor, carrying{" "}
-              <span className="text-accent font-bold not-italic">2.5× more weight</span>{" "}
-              than leverage or liquidity measures."
+              "Earnings consistency was the strongest predictor, carrying more weight than{" "}
+              <span className="text-accent font-bold not-italic">all leverage and liquidity metrics combined.</span>"
             </p>
           </blockquote>
         </div>
@@ -227,13 +226,16 @@ export function Research() {
           <h2 className="font-serif text-2xl font-bold text-primary">Honest Limitations</h2>
 
           <p className="text-sm text-foreground/75 leading-relaxed">
-            Any historical screening tool must acknowledge survivorship bias. Companies that went bankrupt or were delisted between 2020 and 2024 are difficult to properly account for in backward-looking datasets; the training set is biased toward companies that survived.
+            This tool has three honest limitations.
           </p>
           <p className="text-sm text-foreground/75 leading-relaxed">
-            A pure quantitative approach cannot capture the qualitative "moat" Buffett frequently cites: brand power, management integrity, and shifting consumer preferences. This screener is a starting point for research, not a conclusion.
+            First, survivorship bias. Companies that went bankrupt or were delisted between 2020 and 2024 are underrepresented in the training data. The model learned from survivors, which likely inflates its optimism.
           </p>
           <p className="text-sm text-foreground/75 leading-relaxed">
-            Live scores use current Yahoo Finance data. The training percentile thresholds were derived from 2020–2021 snapshots. If a company's fundamentals have changed substantially since then, the percentile ranking may not reflect today's competitive landscape.
+            Second, it cannot measure a moat. Brand power, management quality, and competitive positioning do not appear in financial statements. The screener identifies companies with strong fundamentals. It cannot tell you why those fundamentals exist or whether they will persist.
+          </p>
+          <p className="text-sm text-foreground/75 leading-relaxed">
+            Third, the benchmarks are from 2020 to 2021. A company's percentile ranking reflects where it stood relative to that cohort, not today's market. Fundamentals that looked exceptional then may be ordinary now.
           </p>
         </div>
       </section>
