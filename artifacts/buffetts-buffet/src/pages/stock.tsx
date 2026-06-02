@@ -273,7 +273,7 @@ export function StockResults() {
             </div>
 
             {/* Methodology link */}
-            <span ref={methodologyRef} className="mt-1 inline-block">
+            <span ref={methodologyRef} className="inline-block">
               <Link
                 href="/research"
                 className="text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
