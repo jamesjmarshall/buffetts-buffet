@@ -112,8 +112,8 @@ export function Home() {
           </div>
         </div>
 
-        {/* Methodology CTA */}
-        <div className="mt-5 animate-in fade-in duration-700 delay-300">
+        {/* Methodology CTA + scope note */}
+        <div className="mt-5 flex flex-col items-center gap-2 animate-in fade-in duration-700 delay-300">
           <Link
             href="/research"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition-colors group"
@@ -121,6 +121,9 @@ export function Home() {
             How did we build this?
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
+          <p className="text-sm text-muted-foreground text-center">
+            US-listed stocks only. Non-US tickers may return incomplete data.
+          </p>
         </div>
       </section>
 
