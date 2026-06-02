@@ -14,7 +14,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-sm group-hover:bg-accent transition-colors">
               <span className="text-sm" aria-hidden="true">🍽️</span>
             </div>
-            <span className="font-serif text-xl font-bold italic tracking-tight text-primary group-hover:text-accent transition-colors">
+            <span className="font-serif text-xl font-bold italic tracking-tight text-primary group-hover:text-accent transition-colors whitespace-nowrap">
               Buffett's Buffet
             </span>
           </Link>
@@ -56,7 +56,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <span>Historical patterns from 2020–2024. Not financial advice.</span>
               <span>•</span>
               <a
-                href="https://github.com/jamesmarshall"
+                href="https://github.com/jamesjmarshall"
                 target="_blank"
                 rel="noreferrer"
                 className="text-accent hover:text-accent/80 transition-colors font-medium underline underline-offset-4"
