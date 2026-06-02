@@ -146,5 +146,6 @@
 
 .animate-pulsate {
   animation: pulsate-scale 0.45s ease-in-out 5;
+  animation-delay: 5s;
   display: inline-block;
 }
