@@ -144,7 +144,7 @@ export function StockResults() {
 
   const isHoldingCompany = HOLDING_COMPANY_TICKERS.has(ticker);
 
-  const methodologyRef = useRef<HTMLAnchorElement>(null);
+  const methodologyRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const trigger = () => {
       const el = methodologyRef.current;
@@ -273,13 +273,14 @@ export function StockResults() {
             </div>
 
             {/* Methodology link */}
-            <Link
-              ref={methodologyRef}
-              href="/research"
-              className="mt-1 text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
-            >
-              Score methodology
-            </Link>
+            <span ref={methodologyRef} className="mt-1 inline-block">
+              <Link
+                href="/research"
+                className="text-[10px] text-accent/60 hover:text-accent transition-colors underline underline-offset-2"
+              >
+                Score methodology
+              </Link>
+            </span>
           </div>
         </div>
       </div>
