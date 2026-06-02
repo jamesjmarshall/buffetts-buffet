@@ -95,7 +95,7 @@ export function Research() {
             Methodology
           </span>
           <h1 className="font-serif text-5xl sm:text-6xl font-bold leading-tight">
-            The Oracle's Playbook,<br />Tested
+            Warren Buffett's Playbook,<br />Tested
           </h1>
 
           {/* Pull quote */}
@@ -220,10 +220,10 @@ export function Research() {
         </div>
       </section>
 
-      {/* ── Honest limitations ───────────────────────────────────────────────── */}
+      {/* ── Limitations ───────────────────────────────────────────────── */}
       <section className="px-6 pb-20 max-w-3xl mx-auto w-full">
         <div className="bg-card border border-border/50 rounded-2xl p-8 space-y-4">
-          <h2 className="font-serif text-2xl font-bold text-primary">Honest Limitations</h2>
+          <h2 className="font-serif text-2xl font-bold text-primary">Discussion of Limitations</h2>
 
           <p className="text-sm text-foreground/75 leading-relaxed">
             This tool has three honest limitations.

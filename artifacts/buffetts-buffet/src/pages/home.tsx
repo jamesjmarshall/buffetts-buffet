@@ -51,7 +51,7 @@ export function Home() {
         <div className="mb-6 flex flex-col items-center gap-2">
           <OrnamentalDivider />
           <span className="text-xs font-bold uppercase tracking-[0.35em] text-accent opacity-80">
-            A stock screener
+            A fundamental's-based stock screener
           </span>
           <OrnamentalDivider />
         </div>
